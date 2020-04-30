@@ -10,10 +10,10 @@
 [Servlet 맵핑](#Servlet-맵핑)  
 [Servlet request, response](#Servlet-request,-response)  
 [Servlet Life-Cycle](#Servlet-Life-Cycle)  
-form 데이터 처리  
-JSP 스크립트  
-JSP request, response  
-JSP 내장객체  
+[form 데이터 처리](#form-데이터-처리)  
+[JSP 스크립트](#JSP-스크립트)  
+[JSP request, response](#JSP-requset,-response)  
+[JSP 내장객체](#JSP-내장객체)  
 Servlet 데이터 공유  
 Cookie  
 Session  
@@ -150,3 +150,136 @@ response.addCookie("");
 * destroy() : 데이터베이스 사용 뒤 자원 해제, 웹 서버 리소스 이용 뒤 반납시 이용   
 
 웹 컨테이너(tomcat)가 적절한 시점에 메소드를 호출해줌.
+
+---
+### form 데이터 처리
+사용자의 form 데이터를 Servlet에서 처리하는 방법
+* 사용자가 requset 했을 때 서버에서 response하기 위해서 JSP&Servlet을 배우기 때문에 중요한 파트
+* 서버에서 doGet/doPost 두 가지 방식으로 받을 수 있음
+#### :fire: form 태그
+* request 객체를 통해서 브라우저에서 데이터를 서버로 날릴 수 있음
+* form 태그의 속성 __method__에서 POST/GET 설정 가능
+#### :fire: doGet
+* 설정하지 않은 경우 디폴트 값
+* 데이터가 웹 브라우저 URL에 노출되어 웹 서버로 전송, 사용자 정보가 URL에 노출 될 수 있음 > 보안에 취약함
+* 정보 전달의 한계가 존재함
+#### :fire: doPost
+* 맵핑 정보만 노출됨 
+* 사용자의 데이터가 헤더 파일에 암호화되서 전송이 됨(ex: 로그인, 회원가입, 설문조사..)
+
+:heavy_check_mark: requset.getParameterValues()를 통해서 여러가지 값을 받을 수 있음   
+:heavy_check_mark: request.getParameterNames() > while문을 통해서 서버 쪽에 보내진 객체를 확인 가능
+
+---
+
+### JSP 스크립트
+html 파일에 java 관련 코드를 삽입하여 jsp 파일을 만드는 방법   
+
+#### :fire: Servlet <-> JSP
+* __servlet__ : 순수 자바 파일   
+xxx.java -> xxx.class   
+* __Jsp__ : jsp 파일 + HTML 파일   
+xxx.jsp -> xxx_jsp.java -> xxx_jsp.class   
+
+#### :fire: JSP 주요 스크립트
+* 선언 태그 : JSP 페이지에서 Java의 멤버변수 또는 메서드 선언
+```java
+	<%!
+		int num = 10;
+		public exampleMethod() {
+			System.out.println("exaple");
+		}
+	%>
+```
+* 주석 태그 : 
+```html
+	<!-- --> html 주석 태그
+	<%-- --%> JSP 주석 태그
+```
+* 스크립트릿 태그 : JSP 페이지에서 Java 코드를 넣기 위한 태그
+```java
+	<%
+	if(num > 0) {
+	%>
+		<p>if</p>
+	<% } else { %>
+		<p>else</p>
+	<%>} <%>
+```
+* 표현식 태그 : Java의 변수 및 메서드의 반환값을 출력하는 태그
+```java
+	<%=number%>
+```
+* 지시어 : 서버에서 jsp 페이지를 처리하는 방법에 대한 정의
+	* page : 페이지 기본 설정 > 거의 변하지 않음 
+	* :heavy_check_mark: __include__ : 다른 JSP 파일을 사용하고 싶은 경우
+	```java
+	<%@ include file="header.jsp"%>
+	```
+	* taglib : 외부 라이브러리 태그 설정
+	```java
+	<%@ taglib url = "외부 라이브러리 url" prefix="c" %>
+	```
+----
+
+### JSP request, response
+사용자의 요청과 웹 서버의 응답을 담당하는 객체  
+* Servlet과 내용이 비슷함 > 같은 request, response 객체를 사용하기 때문
+
+#### :fire: response 객체
+response.sendRedirect("example.js"); 
+바로 리다이렉트로 보내버리는 메소드
+
+--- 
+### JSP 내장객체
+requset, response 외 JSP에서 기본적으로 제공하는 객체들
+#### :fire: config 객체
+web.xml에 데이터를 저장해놓고 __getInitParameter()__ 메소드를 통해서 JSP에서 데이터를 사용 할 때 이용하는 객체
+__web.xml__
+```xml
+	<servlet-name>servletEx</servlet-name>
+	<jsp-file>/jspEx.jsp</jsp-file>
+	<init-param>
+		<param-name>adminId</param-name>
+		<param-value>admin</param-value>
+	</init-param>
+	<init-param>
+		<param-name>adminPw</param-name>
+		<param-value>1234</param-value>
+	</init-param>
+	<servlet-mapping>servletEx</servlet-mapping>
+	<url-pattern>/jspEx.jsp</url-pattern>
+```
+__jspEx.jsp__
+```java
+	String adminId = config.getInitParameter("adminId");
+	String adminPw = config.getInitParameter("adminPw");
+```
+#### :fire: application 객체
+하나의 jsp가 아니라 어플리케이션 전체에서 사용하기 위해서 사용. 어플리케이션 전체 공유를 위해 사용.
+__web.xml__
+```xml
+
+	<context-param>
+		<param-name>imgDir</param-name>
+		<param-value>/upload/img</param-value>
+	</context-param>
+```
+__jspEx.jsp__
+```java
+	String imgDir = application.getInitParameter("imgDir");   
+	    
+	appication.setAttibute("ex", "example");
+	String ex = (String)application.getAttribute("ex"); // string으로 반환해서 저장 필요
+```
+#### :fire: out 객체
+out.print(); 출력 객체   
+
+#### :fire: exception 객체
+* `<@ page errorPage="errorPage.jsp" %>`  
+이 페이지에서 에러가 발생 한 경우는 errorPage.jsp로 이동한다는 의미 
+* `<@ page isErrorPage="true" %>`   
+이 페이지는 에러 페이지로 이용 하겠다는 
+의미
+
+exception.getMessage(); 메소드를 통해서 에러 메세지 확인 가능
