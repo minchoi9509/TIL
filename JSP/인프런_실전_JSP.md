@@ -13,9 +13,9 @@
 [form 데이터 처리](#form-데이터-처리)  
 [JSP 스크립트](#JSP-스크립트)  
 [JSP request, response](#JSP-requset,-response)  
-[JSP 내장객체](#JSP-내장객체)  
-Servlet 데이터 공유  
-Cookie  
+[JSP내장객체](#JSP-내장객체)  
+[Servlet 데이터 공유](#Servlet-데이터-공유)  
+[Cookie](#Cookie)  
 Session  
 한글처리  
 오라클 설치  
@@ -283,3 +283,28 @@ out.print(); 출력 객체
 의미
 
 exception.getMessage(); 메소드를 통해서 에러 메세지 확인 가능
+
+---
+### Servlet 데이터 공유
+Servlet에서 데이터를 공유하는 방법   
+JSP에서 사용했던 방식과 비슷하게 동일   
+
+---
+### Cookie
+* 클라이언트와 서버의 연결을 유지시켜주는 방법
+#### :fire: Cookie란?
+* 서버와 클라이언트가 연결을 시도했던 흔적을 남기는 것 > 그 흔적을 가지고 과거에 연결이 되었다는 것을 알고 이용할 수 있음
+* http 프로토콜은 브라우저와 서버의 연결이 requset, response 단계를 한 번 유지하고 난 뒤에는 바로 연결을 끊음/한번 요청, 한번 응답 후 자원 해지 > 서버 부하 방지   
+
+ex) 쇼핑몰 : 물건을 여러개 구매 하는 경우에 여러개를 장바구니에 넣는 동안 로그인 정보는 계속 유지되어야 함.    
+
+ :heavy_check_mark: 쿠키 : 해당 브라우저 클라이언트에 기존 연결정보를 저장함. 저장되어있는 데이터 정보 역시 클라이언트 쪽에 저장됨.
+  
+#### :fire: Cookie 구현
+쿠키는 배열로 정의
+
+Cookie[]  cookies = requset.getCookies();    
+response.addCookie(cookie);
+cookie.setMaxAge();   
+
+http 프로토콜에서 많이 사용 될 기법이지만 보안에 취약 할 수 있음.  사용자의 정보가 로컬 pc에 저장되므로 중요한 정보의 경우에는 쿠키에 저장하지 않는 것이 바람직.
