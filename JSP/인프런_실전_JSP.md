@@ -16,8 +16,8 @@
 [JSP내장객체](#JSP-내장객체)  
 [Servlet 데이터 공유](#Servlet-데이터-공유)  
 [Cookie](#Cookie)  
-Session  
-한글처리  
+[Session](#Session)  
+[한글처리](#한글처리)  
 오라클 설치  
 SQL  
 JDBC  
@@ -308,3 +308,38 @@ response.addCookie(cookie);
 cookie.setMaxAge();   
 
 http 프로토콜에서 많이 사용 될 기법이지만 보안에 취약 할 수 있음.  사용자의 정보가 로컬 pc에 저장되므로 중요한 정보의 경우에는 쿠키에 저장하지 않는 것이 바람직.
+
+---
+### Session
+클라이언트와 서버의 연결을 유지시켜주는 Cookie와는 또 다른 방법    
+쿠키 (클라이언트 생성 및 저장) <-> 세션(웹 컨테이너/서버에서 생성 및 저장)   
+쿠키는 보안상 취약점이 있기 때문에 세션을 더 많이 사용 
+
+#### :fire: Session이란?
+공통점 : http 프로토콜을 사용하기 때문에 연결은 반드시 사용 후 끊기게 되는데 그 이후 재연결을 하기 위한 방식 
+
+#### :fire: Session 구현
+HttpSession session = request.getSession(); 
+session.setAttribute(" ", xx);
+session.invalidate(); // 세션 삭제 메소드
+
+---
+### 한글처리
+한글이 정상적으로 출력될 수 있는 방법   
+
+#### :fire: 한글처리
+1) POST : 서블릿, jsp 파일에 `request.setCharacterEncoding("UTF-8");`
+`response.setContentType("text/html; charset=UTF-8");` 
+2) GET : server.xml에 `<Connector URIEncoding="UTF-8"/>` 추가   
+
+
+#### :fire: Filter
+* 웹 브라우저와 서버가 통신을 할 때 필터를 통해서 한 번 걸러내서 통신을 함. 
+* Filter에 인코딩을 포함시켜주면 모든 파일에 일일히 추가 할 필요 없이 한 번에 해결 가능 
+* Filter 인터페이스를 구현하는 클래스 생성(ex: 클래스명 : TempFilter)
+```xml
+<filter>
+	<filter-name>tempFilter</filter-name>
+	<filter-class>com.servlet.filter.TempFilter</filter-class>
+</filter>
+```
