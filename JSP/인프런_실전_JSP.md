@@ -18,11 +18,9 @@
 [Cookie](#Cookie)  
 [Session](#Session)  
 [한글처리](#한글처리)  
-오라클 설치  
-SQL  
-JDBC  
-DAO와 DTO     
-Connection Pool  
+[JDBC](#JDBC)  
+[DAO와 DTO](#DAO와-DTO)     
+[Connection Pool](#Connection-Pool)  
 
 ----
   
@@ -342,4 +340,90 @@ session.invalidate(); // 세션 삭제 메소드
 	<filter-name>tempFilter</filter-name>
 	<filter-class>com.servlet.filter.TempFilter</filter-class>
 </filter>
+```
+---
+### JDBC   
+자바와 오라클이 통신 할 수 있는 방법   
+#### :fire: JDBC 설정
+* __JDBC__ : 자바와 데이터베이스가 통신 할 수 있게 해주는 API 
+* 오라클용 JDBC를 사용해줘야 함 
+* __JDBC 설정__
+	windows > preferences > java > build path > classpath variables > 사용하는 jre의 경로를 알 수 있음, 외부 라이브러리를 사용하는 경우 이 경로에서 추가해주면 됨   
+
+#### :fire: JDBC를 통한 데이터관리
+client -> jsp, servlet -> DataBase   
+1. OracleDriver 로딩 : `Class.forName(driver);`
+2. Java와 Oracle 연결(connection) : `con=DriverManager.getConnection(url, id, pw);`
+3. Query 전송 객체(statement) : `stmt = con.createStatement();` 통신을 하기 위한 전송 객체 생성
+4. Query 작성 : `String sql = "SELECT * FROM EMP";`
+5. Query 전송 : `res = stmt.executeQuery(sql);` 
+
+finally문에서 꼭 자원 해제를 해줘야 함   
+```java
+finally {
+	try {
+	if(stmt != null) stmt.close();
+	if(con != null) con.close();
+	}catch(Exception ex) {
+		ex.printStackTrace();
+	}
+```
+executeQuery(select문) <-> executeUpdate(update, insert문)
+
+#### :fire: PrepareStatement
+* 쿼리문을 전부 작성하는 것이 아니라 비워둠. 
+* 코드의 중복 및 실수 방지
+
+```java
+	String sql = "update book set book_loc = ? where book_name = ?";
+	pstmt = con.prepareStatement(sql); 
+	pstmt.setString(1, "111-2212");
+	pstmt.setString(2, "book2"); 
+```
+
+---
+### DAO와 DTO
+데이터 베이스와 통신하기 위한 기능을 모듈화하는 방법
+#### :fire: DAO, DTO란?
+DAO : Data Access Object , 데이터 베이스와 연결 해주는 역할
+DTO : Data Transfer Object, 값 저장
+
+#### :fire: DAO, DTO 구현
+브라우저 <-> [ Servlet <-> DAO  ] <- DTO - 데이터베이스  
+데이터 베이스와 관련된 내용을 DAO 객체로 구분해줌   
+
+---
+### Connection Pool
+데이터 베이스와 통신하는 자원을 효율적으로 관리하기 위한 방법
+
+#### :fire: 커넥션 풀이란?
+브라우저 -> request -> 웹 서버 ---> DB Access -> 데이터베이스   
+기존 DB Access 단계 1. DB Connection 2. Data Handling 3. DB connection close   
+문제점 :  웹 서비스 사용 중에는 서버에 수차례 DB Connection이 필요한데  이렇게 사용하는 경우 계속 같은 작업을 반복함으로 작업에 부화가 될 수 있음. > Connection Pool이라는 경로를 통해서 rent, return을 통해서 사용 가능 (효율적) 
+
+#### :fire: 커넥션 풀 설정
+server > context.xml
+
+```xml
+	<Resource auth = "Container"
+	driverClassName = "oracle.jdbc.driver.OracleDriver"
+	url = "jdbc:oracle:thin:@localhost:1521:xe"
+	username = "scott"
+	password = "123456"
+	name="jdbc/Oracle11g" // 커넥션 풀의 이름
+	type="javax.sql.DataSource" // 커넥션 풀 생성 API
+	maxActive="4" 
+	maxWait="10000"
+```
+
+#### :fire: 커넥션 풀 구현
+```java
+	public BookDAO() {
+		try {
+			Context context = new InitialContext();
+			DataSource dataSource = (DataSource)context.lookup("java:comp/env/jdbc/Oracle11g");
+		}catch(Exception e) {
+			e.printStackTarace();
+		}
+	}
 ```
