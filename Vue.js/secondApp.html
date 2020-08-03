@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <style>
+            .pbtn {
+                background : white;
+                border : 1px solid gray; 
+                margin : 0 5px;
+                cursor : pointer; 
+            }
+
+            button.active {
+                background: blue;
+                color: white; 
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+            <div id="app">
+                <!--v-if가 true일 때만 element가 보이게 함. visible:false인 경우에는 내용이 보이지 않음. 
+                지금은 v-if와 v-show의 결과값이 같아 보이지만 v-if 사용을 권장. v-if=false인 경우에는 안에 로직을 처리조차 하지 않지만 v-show의 경우에는 처리 뒤 display:none; 을 하는 느낌임-->
+                <h1 v-if="visible">나는 보입니다.</h1>
+                <h1 v-show="visible">나는 보입니다.</h1>
+            </div>
+
+            <hr/>
+
+            <div id="app2">
+                <!-- v-for : 배열, 객체 집합에 대한 내용 가져올 때 사용 -->
+                <ul>
+                    <li v-for="n in numbers">{{ n }}</li>
+                </ul>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <td>이름</td>
+                            <td>나이</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="p in people" v-if="p.age < 30">
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.age }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr/>
+
+            <!-- v-on : 사용자가 무엇인가를 실행했을 때 사용하는 코드. v-on = @ 골뱅이 표시 표기와 같음. @Click -->
+            <div id="app3">
+                <button v-on:click="alert('버튼을 클릭했습니다.')">버튼</button>
+                <button v-on:dblclick="alert('더블 클릭했습니다.')">더블버튼</button>
+
+                <h1 v-if="visible">보여요</h1>
+                <!--h1이 보였다가 보이지 않았다가 하게 v-on:click문을 설정해 줄 것임. visible=true 상태를  -->
+                <button v-on:click="visible = !visible">보였다가 안보였다가 버튼</button>
+            </div>
+
+            <hr />
+            
+            <div id="app4">
+                <button v-on:click="add()">버튼</button>
+                <ul>
+                    <li v-for="n in numbers">{{ n }}</li>
+                </ul>
+                <input type="text" v-model="animal" v-on:keyup.enter="capture()">
+                <ul>
+                    <li v-for="n in animals">{{ n }}</li>
+                </ul>
+            </div>
+
+            <hr/>
+
+            <div id="app5">
+                <!-- class와 같은 속성들으르 동적으로 제공해주고자 할 때 사용함. v-bind는 :class와 같이 콜럼을 통해서 사용할 수 있음. -->
+                <button class="pbtn" v-bind:class="{'active' : page === p}" v-for="p in pages" v-on:click="page = p">{{ p }}</button>
+                <hr />
+                <div v-for="p in pages" v-if="page === p">
+                    <p>{{ p }} contents</p>
+                    <img v-bind:src="img/' + p + '.png'">
+                </div>
+            </div>
+        <script>
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    visible : true
+                }
+            });
+
+            var app2 = new Vue({
+                el: '#app2',
+                data : {
+                    numbers : [1,2,3,4,5,6,7],
+                    people: [
+                        {
+                            name: '배불러',
+                            age:23
+                        },
+                        {
+                            name: 'minchoi',
+                            age:20
+                        },
+                        {
+                            name: '잠와',
+                            age:33
+                        }
+                    ]
+                }
+            })
+            
+            // 우선 이걸 정의해주지 않으면 vue가 먹지 않음. 아직까진 잘 모르겠음. 일단 기본적인 형태라고 생각. 
+            var app3 = new Vue({
+                el: '#app3',
+                data : {
+                    visible:true
+                }
+            })
+
+            var app4 = new Vue({
+                el: '#app4',
+                data: {
+                    numbers: [1,2,3,4,5],
+                    animal: null, 
+                    animals: ['lion', 'tiger', 'dog', 'cat', 'eagle']
+                },
+                methods: {
+                    // 사용자가 정의한 함수
+                    add : function() {
+                        // this : data, methods 객체를 가리킴
+                        var lastNum = this.numbers[this.numbers.length -1]; 
+                        lastNum += 1;
+                        this.numbers.push(lastNum); 
+                    }, 
+                    capture : function() {
+                        if(this.animal) {
+                            this.animals.push(this.animal); 
+                            this.animal = null; 
+                        }
+                    }
+                }
+            });
+
+            // v-bind
+            var app5 = new Vue({
+                el: '#app5',
+                data: {
+                    page: 'page1', 
+                    pages: ['page1', 'page2', 'page3', 'page4']
+                }
+            });
+        </script>
+    </body>
+</html>
