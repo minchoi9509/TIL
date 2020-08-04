@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <style>
+        .app>.head {
+            padding: 20px;
+            background: #07c;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            position: relative;
+        }
+
+        .app>.head .title {
+            font-size: 20px;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .app>.head .list-btn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 21px;
+            color: #fff;
+            padding: 30px;
+            line-height: 0;
+        }
+
+        .app>.body ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .app>.body ul li {
+            padding: 20px;
+            font-size: 16px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .app>.body .add-btn {
+            display: inline-block;
+            padding: 29px 19px 35px 19px;
+            font-size: 38px;
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            background: #07c;
+            color: #fff;
+            border: 0;
+            border-radius: 50%;
+            line-height: 0;
+            outline: 0;
+        }
+
+        .app>.body > .write {
+            padding: 10px;
+        }
+
+        .app>.body > .write textarea {
+            width: 100%;
+            height: 420px;
+            max-width: 100%;
+            font-size: 16px;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .app>.body > .write button {
+            width: 49%;
+            color: #fff;
+            padding: 15px;
+            border: 0;
+        }
+
+        .app>.body > .write .save-btn {
+            background: #07c;
+        }
+
+        .app>.body > .write .save-btn.full {
+            width: 100%;
+        }
+
+        .app>.body > .write .remove-btn {
+            background: #333;
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <div id="app" class="app">
+        <div class="head">
+            <span class="title">메모 앱</span>
+            <span class="list-btn" v-if="mode != 'list'" v-on:click="mode = 'list'">&lt;</span>
+        </div>
+        <div class="body">
+            <div v-if="mode === 'list'">
+                <ul>
+                    <li v-for="m in memos" v-on:click="open(m.id)">{{ m.content }} </li>
+                </ul>
+            </div>
+            <!--mode가 list가 아니라면-->
+            <div class="write" v-else>
+                <textarea v-model="memo.content"></textarea>
+                <button class="save-btn" type="button" v-on:click="save()" v-bind:class="{'full': mode === 'write'}">저장</button>
+                <button class="remove-btn" type="button" v-if="mode === 'edit'" v-on:click="remove()">삭제</button>
+            </div>
+            <button class="add-btn" type="button" v-on:click="write()" v-if="mode === 'list'">+</button>
+        </div>
+    </div>
+
+    <script>
+        var firstApp = new Vue({
+            el: '#app',
+            data: {
+                mode: 'list',
+                memo: {
+                    id: null,
+                    content: null,
+                    regDate: null
+                },
+                memos: []
+            },
+            methods: {
+                renew: function(val) {
+                    return JSON.parse(JSON.stringify(val)); 
+                },
+                open: function(id) {
+                    for(var i in this.memos) {
+                        if(this.memos[i].id == id) {
+                            this.memo = this.renew(this.memos[i]);
+                            break;
+                        }
+                    }
+
+                    this.mode = 'edit'; 
+                },
+                write: function () {
+                    this.mode = 'write';
+                    this.memo = {
+                        id : null,
+                        content : null,
+                        regDate : null
+                    }
+                },
+                save: function() {
+                    var id = this.memos.length + 1;
+
+                    if(this.mode === 'write'){
+                        this.memos.push({
+                        id: id,
+                        content: this.memo.content,
+                        regDate: new Date()
+                    })
+                    }else if(this.mode === 'edit'){
+                        for(var i in this.memos) {
+                            if(this.memos[i].id === this.memo.id) {
+                                this.memos[i] = this.renew(this.memo);
+                                break; 
+                            }
+                        }
+                    }
+
+                    
+                    this.mode = 'list';
+
+                    localStorage.setItem('memos', JSON.stringify(this.memos));
+                },
+                remove: function() {
+                    if(confirm("삭제하시겠습니까?")) {
+                        for(var i in this.memos) {
+                            if(this.memos[i].id === this.memo.id) {
+                                this.memos.splice(i, 1); 
+                                break; 
+                            }
+                        }
+                    
+                    localStorage.setItem('memos', JSON.stringify(this.memos));
+                    this.mode = 'list'; 
+                    }
+                }
+            },
+            created: function() {
+                // 생성 되었을 때 실행되는 함수
+                var memos = localStorage.getItem("memos");
+                if(memos) {
+                    this.memos = JSON.parse(memos);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
